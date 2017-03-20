@@ -1,0 +1,9 @@
+GuessTheNumber/GuessTheNumber/Debug/
+Debugging Exercise/Debugging Exercise/x64/Debug/
+BattleArenaHome/BattleArena/Debug/
+*.db
+*.suo
+BattleArenaHome/Debug/
+Debugging Exercise/x64/Debug/
+GuessTheNumber/Debug/
+TicTacToe/TicTacToe/Debug/
