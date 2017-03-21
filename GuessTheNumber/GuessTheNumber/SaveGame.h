@@ -1,3 +1,5 @@
+//does nothing
+
 #pragma once
 class SaveGame
 {

@@ -1,110 +1,185 @@
-#include <iostream> 
+#include <iostream>
 #include <fstream>
-#include <string>
 #include <vector>
 #include "GameInfo.h"
 
-//bitbucket.org/DoddzyCodes/2017_Firstyeartutorials
+using std::cout;
+using std::cin;
+using std::endl;
 
-GameInfo loadGameFromTextFile(std::fstream &aFile);
-std::vector<GameInfo> loadAllGamesFromFile(std::string aPath);
-void saveGamesToBinaryFile(std::vector<GameInfo>& games);
+GameInfo LoadGameFromTextFile(std::fstream& file);
+std::vector<GameInfo> LoadAllGamesFromFile(std::string path);
+void SaveGamesToBinaryFile(std::vector<GameInfo>& games);
 std::vector<GameInfo> LoadGamesFromBinary(std::string path);
+void writeToBinaryFile();
 
 void main()
 {
-	std::vector<GameInfo> games = loadAllGamesFromFile("games.txt");
-	saveGamesToBinaryFile(games);
+	std::vector<GameInfo> games = LoadAllGamesFromFile("games.txt");
+	SaveGamesToBinaryFile(games);
+	writeToBinaryFile();
+	std::vector<GameInfo> loadedgames = LoadGamesFromBinary("games.dat");
+	system("pause");
 }
 
-GameInfo loadGameFromTextFile(std::fstream &aFile)
+GameInfo LoadGameFromTextFile(std::fstream & file)
 {
 	GameInfo game;
-	char buffer[1024];
-	aFile.getline(buffer, 1023);
-	strcpy(game.m_sName, buffer);
+	char buffer[1024] = { 0 };
 
-	aFile.getline(buffer, 1023);
-	strcpy(game.m_sPublisher, buffer);
+	//Read in the game name
+	file.getline(buffer, 1023);
+	//game.name = buffer;
+	strcpy(game.name, buffer);
 
-	//read the $ sign and ignore it.
-	char c; aFile.get(c);
-	aFile >> game.m_fCost;
-	aFile.getline(buffer, 1023);
+	//Read in the games publisher
+	file.getline(buffer, 1023);
+	strcpy(game.publisher, buffer);
 
+	//Read and ignore the char at the start of the line
+	char c; file.get(c);
+	//Read in the game price
+	file >> game.cost;
+	//Read in the extra characters after the first char and move to the next line
+	file.getline(buffer, 1023);
+
+	//Read the game status
 	int i = 0;
-	aFile >> i;
-	game.m_eStatus = (GameInfo::OwnedStatus)i;
-	aFile.getline(buffer, 1023);
+	//Store the loaded value in the temp variable
+	file >> i;
+	game.status = (GameInfo::OwnedStatus)i;
+	//Move the 'read pointer' to the next line
+	file.getline(buffer, 1023);
 
-	aFile >> game.m_fScore;
-	aFile.getline(buffer, 1023);
+	//Read in the game score
+	file >> game.score;
+	//Store the loaded value in the temp variable
+	file.getline(buffer, 1023);
 
-	aFile.getline(buffer, 1023);
+	//Store the loaded value in the temp variable
+	file.getline(buffer, 1023);
 	return game;
 }
 
-std::vector<GameInfo> loadAllGamesFromFile(std::string aPath)
+std::vector<GameInfo> LoadAllGamesFromFile(std::string path)
 {
-	//try and load the file at "path" for input
-	std::fstream inputFile(aPath, std::ios_base::in);
-	if (inputFile.bad())
+	//Try and load the file at 'path' for input
+	std::fstream inputFile(path, std::ios_base::in);
+
+	if (!inputFile.is_open())
 	{
-		//if the file is bad, display an error
-		std::cout << "Unable to open " << aPath << ". Please check the file"
-			<< " and try again" << std::endl;
+		//Display error
+		cout << "Unable to open " << path << ". Please check the file and try again" << endl;
+		system("pause");
 		return std::vector<GameInfo>();
 	}
+
+	//Otherwise, create a new array to store our games
 	std::vector<GameInfo> games;
-	while (!inputFile.eof())
+
+	//While we haven't reached the end of the file
+	while (!inputFile.eof() && !inputFile.eof() && inputFile.peek() != EOF)
 	{
-		games.push_back(loadGameFromTextFile(inputFile));
+		//Load a single game from the file and store it in the vector
+		games.push_back(LoadGameFromTextFile(inputFile));
 	}
+
+	//Close the input file when we are done reading from it;
 	inputFile.close();
+
+	//Return the vector back to the caller
 	return games;
 }
 
-void saveGamesToBinaryFile(std::vector<GameInfo>& games)
+void SaveGamesToBinaryFile(std::vector<GameInfo>& games)
 {
-	std::fstream outputFile("games.dat", std::ios_base::out ||
+	std::fstream outputFile("games.dat", std::ios_base::out |
 		std::ios_base::binary);
+
 	if (!outputFile.is_open())
 	{
-		std::cout << "something went wrong - please make sure that "
+		std::cout << "Something went wrong - please make sure that "
 			<< "the games.dat file is not being accessed." << std::endl;
+		system("pause");
 		return;
 	}
-	int numberofGames = games.size();
-	outputFile.write((char*)&numberofGames, sizeof(int));
+
+	int numberOfGames = games.size();
+	outputFile.write((char*)&numberOfGames, sizeof(int));
 
 	for (GameInfo& game : games)
 	{
 		outputFile.write((char*)&game, sizeof(GameInfo));
 	}
 
+	//Close the input file when we are done reading from it;
 	outputFile.close();
 }
 
 std::vector<GameInfo> LoadGamesFromBinary(std::string path)
 {
-	std::fstream inputFile(path, std::ios_base::in || std::ios_base::binary);
-
+	//open the file at 'path' as a binary file
+	std::fstream inputFile(path, std::ios_base::in | std::ios_base::binary);
 	if (!inputFile.is_open())
 	{
-		std::cout << "something went wrong - please make sure that "
+		std::cout << "Something went wrong - please make sure that "
 			<< "the games.dat file is not being accessed." << std::endl;
 		return std::vector<GameInfo>();
 	}
-	int numberOfGames = 0;
-	inputFile.read((char*)numberOfGames, sizeof(int));
-	std::vector < GameInfo> games;
-	for (int i = 0; i < numberOfGames; i++)
-	{
-		GameInfo info;
-		inputFile.read((char*)&info, sizeof(GameInfo));
 
-		games.push_back(info);
+	//read the number of games currently in the file
+	int numberOfGames;
+	inputFile.read((char*)&numberOfGames, sizeof(int));
+	//Create a new vector to store our loaded games
+	std::vector<GameInfo> games; //1
+	for (int i = 0; i < numberOfGames; ++i)
+	{
+		GameInfo info; //create a temp game object
+					   //fill the temp game object from the binary data in the file
+		inputFile.read((char*)&info, sizeof(GameInfo));
+		//Copy the temp object into our array
+		games.push_back(info);//2
 	}
 
-	return games;
+	//return the list of games
+	return games; //3
+}
+
+void writeToBinaryFile()
+{
+	std::fstream outputFile("games.dat", std::ios_base::app |
+		std::ios_base::binary);
+	std::fstream outputTextFile("games.txt", std::ios_base::app);
+
+	//outputFile.write((char*)'\n', sizeof(1));
+	//outputTextFile.write((char*)'\n', sizeof(1));
+
+	char tempName[64]{ 0 };
+	std::cout << "What is the name?" << std::endl;
+	std::cin.getline(tempName, INT_MAX);
+	outputFile.write((char*)&tempName, sizeof(tempName));
+	outputTextFile.write((char*)&tempName, sizeof(tempName));
+
+	std::cout << "Who is the publisher?" << std::endl;
+	std::cin.getline(tempName, INT_MAX);
+	outputFile.write((char*)&tempName, sizeof(tempName));
+	outputTextFile.write((char*)&tempName, sizeof(tempName));
+
+	std::cout << "What is the price?" << std::endl;
+	std::cin.getline(tempName, INT_MAX);
+	outputFile.write((char*)&tempName, sizeof(tempName));
+	outputTextFile.write((char*)&tempName, sizeof(tempName));
+
+	std::cout << "What is the current status?" << std::endl;
+	std::cin.getline(tempName, INT_MAX);
+	outputFile.write((char*)&tempName, sizeof(tempName));
+	outputTextFile.write((char*)&tempName, sizeof(tempName));
+
+	std::cout << "What is the rating?" << std::endl;
+	std::cin.getline(tempName, INT_MAX);
+	std::cin.clear();
+	outputFile.write((char*)&tempName, sizeof(tempName));
+	outputTextFile.write((char*)&tempName, sizeof(tempName));
+
+	outputFile.close();
 }

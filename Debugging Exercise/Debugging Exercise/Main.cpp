@@ -10,16 +10,6 @@
 // for Marines and Zerglings. It's good to be able to tell what the differences are
 // and why they might be important.
 
-// What's efficient and inefficient? Why?
-/*
-using vectors is effecient as the marines and zerglings die often, and resizing of an array would happen often
-
-*/
-// What uses more memory and what doesn't? Why?
-/*
-
-*/
-
 #include <iostream>
 #include <vector>
 #include "Marine.h"

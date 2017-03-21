@@ -2,11 +2,3 @@
 
 
 
-GameInfo::GameInfo()
-{
-}
-
-
-GameInfo::~GameInfo()
-{
-}

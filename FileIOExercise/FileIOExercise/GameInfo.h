@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+
 class GameInfo
 {
 public:
@@ -6,19 +8,13 @@ public:
 	{
 		No,
 		Yes,
-		InCart,
 		Watched,
+		InCart,
 	};
 
-	GameInfo();
-	~GameInfo();
-
-
-
-	char m_sName[256];
-	char m_sPublisher[256];
-	OwnedStatus m_eStatus;
-	float m_fCost;
-	float m_fScore;
+	char name[256];
+	char publisher[256];
+	float		cost;
+	OwnedStatus	status;
+	float		score;
 };
-
